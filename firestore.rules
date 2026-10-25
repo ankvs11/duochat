@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only these two emails can use the chat. Change them to your real emails (lowercase).
+    function allowed() {
+      return request.auth != null &&
+        request.auth.token.email in ['ankvs11@gmail.com', 'nomadpooja2608@gmail.com'];
+    }
+
+    match /{document=**} {
+      allow read, write: if allowed();
+    }
+  }
+}

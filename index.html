@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DuoChat</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="DuoChat">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loading" class="view center">Loading...</div>
+
+<!-- Login -->
+<div id="loginView" class="view hidden">
+  <div class="card">
+    <img src="icon-192.png" class="logo" alt="">
+    <h1>DuoChat</h1>
+    <p class="sub">Private chat for two</p>
+    <div id="setupWarn" class="warn hidden">Setup needed: add your Firebase settings in config.js</div>
+    <input id="nameIn" type="text" placeholder="Your name (only for new account)" autocomplete="name">
+    <input id="emailIn" type="email" placeholder="Email" autocomplete="email">
+    <input id="passIn" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password">
+    <button id="loginBtn" class="primary">Log in</button>
+    <button id="signupBtn" class="ghost">Create new account</button>
+    <div id="loginErr" class="err"></div>
+  </div>
+</div>
+
+<!-- Chat -->
+<div id="chatView" class="view hidden">
+  <header>
+    <div class="avatar" id="avatar">?</div>
+    <div class="who">
+      <div id="otherName">Waiting for the other person</div>
+      <div id="otherStatus" class="status"></div>
+    </div>
+    <button id="callBtn" class="icon" aria-label="Video call">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4z"/></svg>
+    </button>
+    <button id="logoutBtn" class="icon" aria-label="Log out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+    </button>
+  </header>
+  <main id="msgs"></main>
+  <div id="sending" class="sending hidden">Sending photo...</div>
+  <footer>
+    <button id="photoBtn" class="icon" aria-label="Send photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    </button>
+    <input id="fileIn" type="file" accept="image/*" hidden>
+    <textarea id="textIn" rows="1" placeholder="Type a message"></textarea>
+    <button id="sendBtn" class="send" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+    </button>
+  </footer>
+</div>
+
+<!-- Incoming call -->
+<div id="incoming" class="overlay hidden">
+  <div class="avatar big" id="inAvatar">?</div>
+  <div class="inname" id="inName"></div>
+  <div class="insub">Incoming video call...</div>
+  <div class="row">
+    <button id="declineBtn" class="round red" aria-label="Decline">
+      <svg class="hang" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    </button>
+    <button id="acceptBtn" class="round green" aria-label="Accept">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Call screen -->
+<div id="callView" class="callview hidden">
+  <video id="remoteVideo" autoplay playsinline></video>
+  <video id="localVideo" class="mirror" autoplay playsinline muted></video>
+  <div id="callStatus" class="callstatus"></div>
+  <div class="callbar">
+    <button id="muteBtn" class="round" aria-label="Mute">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+    </button>
+    <button id="camBtn" class="round" aria-label="Camera on/off">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-4v12l-6-4z"/></svg>
+    </button>
+    <button id="flipBtn" class="round" aria-label="Switch camera">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+    </button>
+    <button id="hangBtn" class="round red" aria-label="End call">
+      <svg class="hang" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div id="viewer" class="viewer hidden"><img id="viewerImg" alt=""></div>
+<div id="toast" class="toast hidden"></div>
+
+<script type="module" src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
+</script>
+</body>
+</html>
